@@ -1,0 +1,89 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Client {
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  name          String?
+  phone         String?
+  email         String?
+  notifications Notification[]
+  appointments  Appointment[]
+  role          EnumClientRole?
+}
+
+model MasterClass {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  title        String?
+  description  String?
+  date         DateTime?
+  appointments Appointment[]
+  master       Master?       @relation(fields: [masterId], references: [id])
+  masterId     String?
+}
+
+model Appointment {
+  id            String       @id @default(cuid())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  timeslot      String?
+  client        Client?      @relation(fields: [clientId], references: [id])
+  clientId      String?
+  masterClass   MasterClass? @relation(fields: [masterClassId], references: [id])
+  masterClassId String?
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  message   String?
+  sentAt    DateTime?
+  client    Client?   @relation(fields: [clientId], references: [id])
+  clientId  String?
+}
+
+model Master {
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  name           String?
+  specialization String?
+  masterClasses  MasterClass[]
+  role           EnumMasterRole?
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  roles     Json
+}
+
+model Role {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum EnumClientRole {
+  Option1
+}
+
+enum EnumMasterRole {
+  Option1
+}
